@@ -7,3 +7,7 @@
 # Task 2
 - Given the restricted time, I used ChatGPT to understand how torch and einops are typically used together. Then used this as inspiration to implement SimpleNeuralNetwork.backward().
 - One minor thing: looks like the batch_size parameter wasn't used anymore, so had to be removed. Assuming I'm not missing something.
+
+
+# Task 3
+- Had to rely on ChatGPT a bit more to make my initial IBP implementation work properly.

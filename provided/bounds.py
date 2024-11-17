@@ -60,20 +60,32 @@ class IntervalBoundPropagation:
             output.shape  # (32, 4, 2)
         """
         batch_dim = input_bounds.shape[0]
-
-        out_shape = input_bounds.shape
-        out_shape[1] = weights.shape[1]
-
+        
+        out_shape = (batch_dim, weights.shape[1])
+        
         bounds_out = torch.empty(
-            (batch_dim, *out_shape, 2),
+            (*out_shape, 2),
             device="cpu",
             dtype=torch.float64,
         )
 
         ########### YOUR CODE HERE ############
-
-        pass
+        # Extract lower and upper bounds
+        lower_bounds = input_bounds[..., 0]  # (batch_size, input_dim)
+        upper_bounds = input_bounds[..., 1]  # (batch_size, input_dim)
         
+        # Compute positive and negative weights
+        W_pos = torch.maximum(weights, torch.zeros_like(weights)).T
+        W_neg = torch.minimum(weights, torch.zeros_like(weights)).T
+        
+        # Compute output lower bounds
+        lower = (lower_bounds @ W_pos + upper_bounds @ W_neg + bias)
+        
+        # Compute output upper bounds
+        upper = (upper_bounds @ W_pos + lower_bounds @ W_neg + bias)
+        
+        # Stack the bounds along the last dimension
+        bounds_out = torch.stack([lower, upper], dim=-1)
         ########### END YOUR CODE  ############
 
         return bounds_out
