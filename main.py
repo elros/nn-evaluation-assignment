@@ -18,8 +18,6 @@ if __name__ == "__main__":
     dataset = MultiProcessDataset(DATA_DIR / '3d_data.csv')
     dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=2, drop_last=True)
 
-    exit(0)
-
     ###########################################################################
     # Split data into training and test sets
     ###########################################################################
@@ -37,13 +35,14 @@ if __name__ == "__main__":
     ###########################################################################
 
     network = SimpleNeuralNetwork(
-        batch_size=32,
         input_dim=3,
         hidden_sizes=[4, 4],
         output_size=1
     )
 
     network.train(train_dataloader, epochs=2, batch_size=32, learning_rate=0.01)
+
+    exit(0)
 
     ###########################################################################
     # Evaluate the network

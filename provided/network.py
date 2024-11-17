@@ -139,7 +139,7 @@ class SimpleNeuralNetwork:
             losses.append(avg_loss)
             print(f'\nEpoch {epoch + 1} average loss: {avg_loss:.4f}')
     
-    def backward(self, Y: torch.Tensor, learning_rate: float = 0.01) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    def backward(self, Y: torch.Tensor, learning_rate: float = 0.01):
         """
         Perform a backward pass to compute gradients and update weights.
 
@@ -155,16 +155,32 @@ class SimpleNeuralNetwork:
         dZ3 = self.output - Y  # (batch_size, output_size)
 
         ########### YOUR CODE HERE ############
+        # Compute gradients for W3 and b3 (no activation function in last layer)
+        dW3 = einops.einsum(dZ3, self.Z2, "batch out, batch hidden -> out hidden") / self.X.shape[0]
+        db3 = torch.sum(dZ3, dim=0, keepdim=True) / self.X.shape[0]
 
-        pass
+        # Gradient for hidden layer 2, with ReLU derivative
+        dZ2 = einops.einsum(self.W3.T, dZ3, "hidden out, batch out -> batch hidden")
+        dZ2 = dZ2 * (self.Z2 > 0).float()  # ReLU derivative
 
-        # Update weights and biases
-        self.W3 -= 0
-        self.b3 -= 0
-        self.W2 -= 0
-        self.b2 -= 0
-        self.W1 -= 0
-        self.b1 -= 0
+        # Compute gradients for W2 and b2
+        dW2 = einops.einsum(dZ2, self.Z1, "batch out, batch hidden -> out hidden") / self.X.shape[0]
+        db2 = torch.sum(dZ2, dim=0, keepdim=True) / self.X.shape[0]
 
+        # Gradient for hidden layer 1, with ReLU derivative
+        dZ1 = einops.einsum(self.W2.T, dZ2, "hidden out, batch out -> batch hidden")
+        dZ1 = dZ1 * (self.Z1 > 0).float()  # ReLU derivative
+
+        # Compute gradients for W1 and b1
+        dW1 = einops.einsum(dZ1, self.X, "batch out, batch features -> out features") / self.X.shape[0]
+        db1 = torch.sum(dZ1, dim=0, keepdim=True) / self.X.shape[0]
+
+        # Update weights and biases using gradient descent
+        self.W3 -= learning_rate * dW3
+        self.b3 -= learning_rate * db3
+        self.W2 -= learning_rate * dW2
+        self.b2 -= learning_rate * db2
+        self.W1 -= learning_rate * dW1
+        self.b1 -= learning_rate * db1
         ########### END YOUR CODE  ############
 
