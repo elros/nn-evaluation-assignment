@@ -10,7 +10,6 @@ from provided.constants import DATA_DIR
 if __name__ == "__main__":
 
     print("Running main.py...")
-    exit(0)
 
     ###########################################################################
     # Load data
@@ -18,6 +17,8 @@ if __name__ == "__main__":
 
     dataset = MultiProcessDataset(DATA_DIR / '3d_data.csv')
     dataloader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=2, drop_last=True)
+
+    exit(0)
 
     ###########################################################################
     # Split data into training and test sets
